@@ -1,12 +1,13 @@
 {
   "name": "mxd-heimdall",
   "description": "",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "http://github.com/dragonprojects/mxd-heimdall",
   "license": "MIT",
   "readmeFilename": "README.md",
   "main": "dest/lib.js",
   "scripts": {
+    "prepublish": "npm run transpile",
     "transpile": "babel src -d dest"
   },
   "dependencies": {
