@@ -4,24 +4,71 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 const rp = require('request-promise');
 
-module.exports = _ref => {
-  let apikey = _ref.apikey;
-  let appid = _ref.appid;
-  let pageSize = _ref.pageSize;
-  return (() => {
-    var _ref2 = _asyncToGenerator(function* (query) {
-      query.query('apikey', apikey).query('appid', appid);
-      if (pageSize) {
-        query.query('pageSize', pageSize);
-      }
-      return rp.get({
-        url: `https://heimdall.maxdome.de/interfacemanager-2.1/mxd/assets?${ query }`,
-        headers: {
-          accept: 'application/json',
-          clienttype: 'Webportal',
-          'maxdome-origin': 'de'
-        },
+module.exports = class {
+  constructor(_ref) {
+    let apikey = _ref.apikey;
+    let appid = _ref.appid;
+    let hostname = _ref.hostname;
+    let pageSize = _ref.pageSize;
+    let version = _ref.version;
+
+    this.apikey = apikey;
+    this.appid = appid;
+    this.hostname = hostname || 'heimdall.maxdome.de';
+    this.pageSize = pageSize;
+    this.version = version || 'v1';
+  }
+
+  getPath(path) {
+    if (path.includes('?')) {
+      path += '&';
+    } else {
+      path += '?';
+    }
+    path += `apikey=${ this.apikey }&appid=${ this.appid }`;
+    return path;
+  }
+
+  getHeaders(headers) {
+    return Object.assign({
+      accept: 'application/json',
+      client: 'mxd_package',
+      clienttype: 'Webportal',
+      'content-type': 'application/json',
+      language: 'de_DE',
+      'maxdome-origin': 'maxdome.de',
+      platform: 'web'
+    }, headers || {});
+  }
+
+  getUrl(path) {
+    return `https://${ this.hostname }/api/${ this.version }/${ path }`;
+  }
+
+  request(path, _ref2) {
+    var _this = this;
+
+    let body = _ref2.body;
+    let headers = _ref2.headers;
+    let method = _ref2.method;
+    let transform = _ref2.transform;
+    return _asyncToGenerator(function* () {
+      return rp({
+        body: body,
+        method: method || 'get',
+        url: _this.getUrl(_this.getPath(path)),
+        headers: _this.getHeaders(headers),
         json: true,
+        transform: transform
+      });
+    })();
+  }
+
+  getAssets(query) {
+    var _this2 = this;
+
+    return _asyncToGenerator(function* () {
+      return _this2.request(`mxd/assets?${ query }`, {
         transform: function transform(data) {
           return data.assetList.map(function (asset) {
             let title = asset.title;
@@ -32,10 +79,6 @@ module.exports = _ref => {
           });
         }
       });
-    });
-
-    return function (_x) {
-      return _ref2.apply(this, arguments);
-    };
-  })();
+    })();
+  }
 };
