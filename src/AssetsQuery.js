@@ -7,7 +7,7 @@ module.exports = class {
   }
 
   query(key, value) {
-    this.queries.push(`${key}=${encodeURIComponent(value)}`);
+    this.queries.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
     return this;
   }
 
