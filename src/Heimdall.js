@@ -27,7 +27,7 @@ module.exports = class {
     return Object.assign(
       {
         accept: 'application/json',
-        client: 'mxd_package',
+        client: 'mxd_store',
         clienttype: 'Webportal',
         'content-type': 'application/json',
         language: 'de_DE',
