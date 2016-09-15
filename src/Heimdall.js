@@ -19,6 +19,10 @@ module.exports = class {
     return path;
   }
 
+  getUrl(path) {
+    return `https://${this.hostname}/api/${this.version}/${path}`;
+  }
+
   getHeaders(headers) {
     return Object.assign(
       {
@@ -32,10 +36,6 @@ module.exports = class {
       },
       headers || {}
     );
-  }
-
-  getUrl(path) {
-    return `https://${this.hostname}/api/${this.version}/${path}`;
   }
 
   async request(path, { body, headers, method, transform }) {
@@ -53,8 +53,24 @@ module.exports = class {
     }
   }
 
+  async get(path, { body, headers, transform }) {
+    return this.request(path, { body, headers, transform });
+  }
+
+  async post(path, { body, headers, transform }) {
+    return this.request(path, { body, headers, method: 'post', transform });
+  }
+
+  async put(path, { body, headers, transform }) {
+    return this.request(path, { body, headers, method: 'put', transform });
+  }
+
+  async delete(path, { body, headers, transform }) {
+    return this.request(path, { body, headers, method: 'delete', transform });
+  }
+
   async getAssets(query) {
-    return this.request(`mxd/assets?${query}`, {
+    return this.get(`mxd/assets?${query}`, {
       transform: data => data.assetList.map(asset => {
         let title = asset.title;
         if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
