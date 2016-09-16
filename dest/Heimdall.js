@@ -29,20 +29,20 @@ module.exports = class {
     return path;
   }
 
+  getUrl(path) {
+    return `https://${ this.hostname }/api/${ this.version }/${ path }`;
+  }
+
   getHeaders(headers) {
     return Object.assign({
       accept: 'application/json',
-      client: 'mxd_package',
+      client: 'mxd_store',
       clienttype: 'Webportal',
       'content-type': 'application/json',
       language: 'de_DE',
       'maxdome-origin': 'maxdome.de',
       platform: 'web'
     }, headers || {});
-  }
-
-  getUrl(path) {
-    return `https://${ this.hostname }/api/${ this.version }/${ path }`;
   }
 
   request(path, _ref2) {
@@ -68,11 +68,55 @@ module.exports = class {
     })();
   }
 
-  getAssets(query) {
+  get(path, _ref3) {
     var _this2 = this;
 
+    let body = _ref3.body;
+    let headers = _ref3.headers;
+    let transform = _ref3.transform;
     return _asyncToGenerator(function* () {
-      return _this2.request(`mxd/assets?${ query }`, {
+      return _this2.request(path, { body: body, headers: headers, transform: transform });
+    })();
+  }
+
+  post(path, _ref4) {
+    var _this3 = this;
+
+    let body = _ref4.body;
+    let headers = _ref4.headers;
+    let transform = _ref4.transform;
+    return _asyncToGenerator(function* () {
+      return _this3.request(path, { body: body, headers: headers, method: 'post', transform: transform });
+    })();
+  }
+
+  put(path, _ref5) {
+    var _this4 = this;
+
+    let body = _ref5.body;
+    let headers = _ref5.headers;
+    let transform = _ref5.transform;
+    return _asyncToGenerator(function* () {
+      return _this4.request(path, { body: body, headers: headers, method: 'put', transform: transform });
+    })();
+  }
+
+  delete(path, _ref6) {
+    var _this5 = this;
+
+    let body = _ref6.body;
+    let headers = _ref6.headers;
+    let transform = _ref6.transform;
+    return _asyncToGenerator(function* () {
+      return _this5.request(path, { body: body, headers: headers, method: 'delete', transform: transform });
+    })();
+  }
+
+  getAssets(query) {
+    var _this6 = this;
+
+    return _asyncToGenerator(function* () {
+      return _this6.get(`mxd/assets?${ query }`, {
         transform: function transform(data) {
           return data.assetList.map(function (asset) {
             let title = asset.title;
