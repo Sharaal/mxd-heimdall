@@ -4,6 +4,9 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 
 const rp = require('request-promise');
 
+const appPkg = require(`${ process.cwd() }/package.json`);
+const libPkg = require('../package.json');
+
 module.exports = class {
   constructor(_ref) {
     let apikey = _ref.apikey;
@@ -33,15 +36,31 @@ module.exports = class {
     return `https://${ this.hostname }/api/${ this.version }/${ path }`;
   }
 
+  getFrom() {
+    let author = appPkg.author;
+    if (author) {
+      if (typeof author === 'object') {
+        author = `${ author.name } <${ author.email }> (${ author.url })`;
+      }
+      return author;
+    }
+  }
+
+  getUserAgent() {
+    return `${ appPkg.name } v${ appPkg.version } via ${ libPkg.name } v${ libPkg.version }`;
+  }
+
   getHeaders(headers) {
     return Object.assign({
       accept: 'application/json',
       client: 'mxd_store',
       clienttype: 'Webportal',
       'content-type': 'application/json',
+      from: this.getFrom(),
       language: 'de_DE',
       'maxdome-origin': 'maxdome.de',
-      platform: 'web'
+      platform: 'web',
+      'user-agent': this.getUserAgent()
     }, headers || {});
   }
 
