@@ -4,15 +4,15 @@ const appPkg = require(`${process.cwd()}/package.json`);
 const libPkg = require('../package.json');
 
 module.exports = class {
-  constructor({ apikey, appid, hostname, pageSize, version }) {
+  constructor({ apikey, appid, hostname: hostname = 'heimdall.maxdome.de', pageSize, version: version = 'v1' }) {
     this.apikey = apikey;
     this.appid = appid;
-    this.hostname = hostname || 'heimdall.maxdome.de';
+    this.hostname = hostname;
     this.pageSize = pageSize;
-    this.version = version || 'v1';
+    this.version = version;
   }
 
-  getPath(path) {
+  getPath(path = '') {
     if (path.includes('?')) {
       path += '&';
     } else {
@@ -22,7 +22,7 @@ module.exports = class {
     return path;
   }
 
-  getUrl(path) {
+  getUrl(path = '') {
     return `https://${this.hostname}/api/${this.version}/${path}`;
   }
 
@@ -40,7 +40,7 @@ module.exports = class {
     return `${appPkg.name} v${appPkg.version} via ${libPkg.name} v${libPkg.version}`;
   }
 
-  getHeaders(headers) {
+  getHeaders(headers = {}) {
     return Object.assign(
       {
         accept: 'application/json',
@@ -53,11 +53,11 @@ module.exports = class {
         platform: 'web',
         'user-agent': this.getUserAgent()
       },
-      headers || {}
+      headers
     );
   }
 
-  async request(path, { body, headers, method, transform }) {
+  async request(path = '', { body, headers, method, transform } = {}) {
     try {
       return await rp({
         body: body,
@@ -72,30 +72,36 @@ module.exports = class {
     }
   }
 
-  async get(path, { body, headers, transform }) {
+  async get(path = '', { body, headers, transform } = {}) {
     return this.request(path, { body, headers, transform });
   }
 
-  async post(path, { body, headers, transform }) {
+  async post(path = '', { body, headers, transform } = {}) {
     return this.request(path, { body, headers, method: 'post', transform });
   }
 
-  async put(path, { body, headers, transform }) {
+  async put(path = '', { body, headers, transform } = {}) {
     return this.request(path, { body, headers, method: 'put', transform });
   }
 
-  async delete(path, { body, headers, transform }) {
+  async delete(path = '', { body, headers, transform } = {}) {
     return this.request(path, { body, headers, method: 'delete', transform });
   }
 
-  async getAssets(query) {
+  async getAssets(query, { headers } = {}) {
     return this.get(`mxd/assets?${query}`, {
+      headers,
       transform: data => data.assetList.map(asset => {
         let title = asset.title;
         if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
           title += ` (Season ${asset.number})`;
         }
-        return { id: asset.id, title, description: asset.descriptionShort };
+        return {
+          id: asset.id,
+          title,
+          description: asset.descriptionShort,
+          remembered: asset.remembered
+        };
       })
     });
   }

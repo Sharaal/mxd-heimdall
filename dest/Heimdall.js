@@ -11,18 +11,22 @@ module.exports = class {
   constructor(_ref) {
     let apikey = _ref.apikey;
     let appid = _ref.appid;
-    let hostname = _ref.hostname;
+    var _ref$hostname = _ref.hostname;
+    let hostname = _ref$hostname === undefined ? 'heimdall.maxdome.de' : _ref$hostname;
     let pageSize = _ref.pageSize;
-    let version = _ref.version;
+    var _ref$version = _ref.version;
+    let version = _ref$version === undefined ? 'v1' : _ref$version;
 
     this.apikey = apikey;
     this.appid = appid;
-    this.hostname = hostname || 'heimdall.maxdome.de';
+    this.hostname = hostname;
     this.pageSize = pageSize;
-    this.version = version || 'v1';
+    this.version = version;
   }
 
-  getPath(path) {
+  getPath() {
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
     if (path.includes('?')) {
       path += '&';
     } else {
@@ -32,7 +36,9 @@ module.exports = class {
     return path;
   }
 
-  getUrl(path) {
+  getUrl() {
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
     return `https://${ this.hostname }/api/${ this.version }/${ path }`;
   }
 
@@ -50,7 +56,9 @@ module.exports = class {
     return `${ appPkg.name } v${ appPkg.version } via ${ libPkg.name } v${ libPkg.version }`;
   }
 
-  getHeaders(headers) {
+  getHeaders() {
+    let headers = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     return Object.assign({
       accept: 'application/json',
       client: 'mxd_store',
@@ -61,11 +69,15 @@ module.exports = class {
       'maxdome-origin': 'maxdome.de',
       platform: 'web',
       'user-agent': this.getUserAgent()
-    }, headers || {});
+    }, headers);
   }
 
-  request(path, _ref2) {
+  request() {
     var _this = this;
+
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+    var _ref2 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     let body = _ref2.body;
     let headers = _ref2.headers;
@@ -87,8 +99,12 @@ module.exports = class {
     })();
   }
 
-  get(path, _ref3) {
+  get() {
     var _this2 = this;
+
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+    var _ref3 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     let body = _ref3.body;
     let headers = _ref3.headers;
@@ -98,8 +114,12 @@ module.exports = class {
     })();
   }
 
-  post(path, _ref4) {
+  post() {
     var _this3 = this;
+
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+    var _ref4 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     let body = _ref4.body;
     let headers = _ref4.headers;
@@ -109,8 +129,12 @@ module.exports = class {
     })();
   }
 
-  put(path, _ref5) {
+  put() {
     var _this4 = this;
+
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+    var _ref5 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     let body = _ref5.body;
     let headers = _ref5.headers;
@@ -120,8 +144,12 @@ module.exports = class {
     })();
   }
 
-  delete(path, _ref6) {
+  delete() {
     var _this5 = this;
+
+    let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+    var _ref6 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     let body = _ref6.body;
     let headers = _ref6.headers;
@@ -134,15 +162,24 @@ module.exports = class {
   getAssets(query) {
     var _this6 = this;
 
+    var _ref7 = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+    let headers = _ref7.headers;
     return _asyncToGenerator(function* () {
       return _this6.get(`mxd/assets?${ query }`, {
+        headers: headers,
         transform: function transform(data) {
           return data.assetList.map(function (asset) {
             let title = asset.title;
             if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
               title += ` (Season ${ asset.number })`;
             }
-            return { id: asset.id, title: title, description: asset.descriptionShort };
+            return {
+              id: asset.id,
+              title: title,
+              description: asset.descriptionShort,
+              remembered: asset.remembered
+            };
           });
         }
       });
