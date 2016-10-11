@@ -107,7 +107,8 @@ module.exports = class {
           id: asset.id,
           title: title,
           description: asset.descriptionShort,
-          image: image
+          image: image,
+          remembered: asset.remembered
         };
       })
     });
