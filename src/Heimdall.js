@@ -96,11 +96,18 @@ module.exports = class {
         if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
           title += ` (Season ${asset.number})`;
         }
+        let image;
+        if (asset.coverList) {
+          const poster = asset.coverList.filter((cover) => { return cover.usageType === 'poster'})[0];
+          if (poster) {
+            image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
+          }
+        }
         return {
           id: asset.id,
-          title,
+          title: title,
           description: asset.descriptionShort,
-          remembered: asset.remembered
+          image: image
         };
       })
     });
