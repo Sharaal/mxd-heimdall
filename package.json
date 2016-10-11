@@ -16,8 +16,9 @@
   "readmeFilename": "README.md",
   "main": "dest/lib.js",
   "scripts": {
-    "prepublish": "npm run transpile",
-    "transpile": "babel src -d dest"
+    "build": "babel src -d dest",
+    "lint": "eslint src",
+    "prepublish": "npm run build"
   },
   "dependencies": {
     "request": "^2.74.0",
@@ -26,6 +27,13 @@
   "devDependencies": {
     "babel-cli": "^6.7.5",
     "babel-plugin-transform-async-to-generator": "^6.8.0",
-    "babel-preset-es2015-node4": "^2.1.0"
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.16.0",
+    "babel-plugin-transform-strict-mode": "^6.11.3",
+    "babel-preset-es2015-node4": "^2.1.0",
+    "eslint": "^3.5.0",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-import": "^1.16.0",
+    "eslint-plugin-react": "^6.3.0"
   }
 }

@@ -1,9 +1,10 @@
-const rp = require('request-promise');
+import fs from 'fs';
+import rp from 'request-promise';
 
-const appPkg = require(`${process.cwd()}/package.json`);
-const libPkg = require('../package.json');
+const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
+const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
 
-module.exports = class {
+class Heimdall {
   constructor({ apikey, appid, hostname: hostname = 'heimdall.maxdome.de', pageSize, version: version = 'v1' }) {
     this.apikey = apikey;
     this.appid = appid;
@@ -13,59 +14,58 @@ module.exports = class {
   }
 
   getPath(path = '') {
+    let add = '';
     if (path.includes('?')) {
-      path += '&';
+      add += '&';
     } else {
-      path += '?';
+      add += '?';
     }
-    path += `apikey=${this.apikey}&appid=${this.appid}`;
-    return path;
+    add += `apikey=${this.apikey}&appid=${this.appid}`;
+    return path + add;
   }
 
   getUrl(path = '') {
     return `https://${this.hostname}/api/${this.version}/${path}`;
   }
 
-  getFrom() {
+  static getFrom() {
     let author = appPkg.author;
-    if (author) {
-      if (typeof author === 'object') {
-        author = `${author.name} <${author.email}> (${author.url})`;
-      }
-      return author;
+    if (typeof author === 'object') {
+      author = `${author.name} <${author.email}> (${author.url})`;
     }
+    return author;
   }
 
-  getUserAgent() {
+  static getUserAgent() {
     return `${appPkg.name} v${appPkg.version} via ${libPkg.name} v${libPkg.version}`;
   }
 
-  getHeaders(headers = {}) {
+  static getHeaders(headers = {}) {
     return Object.assign(
       {
         accept: 'application/json',
         client: 'mxd_store',
         clienttype: 'Webportal',
         'content-type': 'application/json',
-        from: this.getFrom(),
+        from: Heimdall.getFrom(),
         language: 'de_DE',
         'maxdome-origin': 'maxdome.de',
         platform: 'web',
-        'user-agent': this.getUserAgent()
+        'user-agent': Heimdall.getUserAgent(),
       },
       headers
     );
   }
 
-  async request(path = '', { body, headers, method, transform } = {}) {
+  async request(path = '', { body, headers, method: method = 'get', transform } = {}) {
     try {
       return await rp({
-        body: body,
-        method: method || 'get',
-        url: this.getUrl(this.getPath(path)),
-        headers: this.getHeaders(headers),
+        body,
+        headers: Heimdall.getHeaders(headers),
         json: true,
-        transform: transform
+        method,
+        transform,
+        url: this.getUrl(this.getPath(path)),
       });
     } catch (e) {
       throw new Error(e.error.message);
@@ -91,26 +91,28 @@ module.exports = class {
   async getAssets(query, { headers } = {}) {
     return this.get(`mxd/assets?${query}`, {
       headers,
-      transform: data => data.assetList.map(asset => {
+      transform: data => data.assetList.map((asset) => {
         let title = asset.title;
         if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
           title += ` (Season ${asset.number})`;
         }
         let image;
         if (asset.coverList) {
-          const poster = asset.coverList.filter((cover) => { return cover.usageType === 'poster'})[0];
+          const poster = asset.coverList.filter(cover => cover.usageType === 'poster')[0];
           if (poster) {
             image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
           }
         }
         return {
           id: asset.id,
-          title: title,
+          title,
           description: asset.descriptionShort,
-          image: image,
-          remembered: asset.remembered
+          image,
+          remembered: asset.remembered,
         };
-      })
+      }),
     });
   }
-};
+}
+
+export default Heimdall;

@@ -1,13 +1,25 @@
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _requestPromise = require('request-promise');
+
+var _requestPromise2 = _interopRequireDefault(_requestPromise);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { return step("next", value); }, function (err) { return step("throw", err); }); } } return step("next"); }); }; }
 
-const rp = require('request-promise');
+const appPkg = JSON.parse(_fs2.default.readFileSync(`${ process.cwd() }/package.json`));
+const libPkg = JSON.parse(_fs2.default.readFileSync(`${ __dirname }/../package.json`));
 
-const appPkg = require(`${ process.cwd() }/package.json`);
-const libPkg = require('../package.json');
-
-module.exports = class {
+class Heimdall {
   constructor(_ref) {
     let apikey = _ref.apikey;
     let appid = _ref.appid;
@@ -27,13 +39,14 @@ module.exports = class {
   getPath() {
     let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
+    let add = '';
     if (path.includes('?')) {
-      path += '&';
+      add += '&';
     } else {
-      path += '?';
+      add += '?';
     }
-    path += `apikey=${ this.apikey }&appid=${ this.appid }`;
-    return path;
+    add += `apikey=${ this.apikey }&appid=${ this.appid }`;
+    return path + add;
   }
 
   getUrl() {
@@ -42,21 +55,19 @@ module.exports = class {
     return `https://${ this.hostname }/api/${ this.version }/${ path }`;
   }
 
-  getFrom() {
+  static getFrom() {
     let author = appPkg.author;
-    if (author) {
-      if (typeof author === 'object') {
-        author = `${ author.name } <${ author.email }> (${ author.url })`;
-      }
-      return author;
+    if (typeof author === 'object') {
+      author = `${ author.name } <${ author.email }> (${ author.url })`;
     }
+    return author;
   }
 
-  getUserAgent() {
+  static getUserAgent() {
     return `${ appPkg.name } v${ appPkg.version } via ${ libPkg.name } v${ libPkg.version }`;
   }
 
-  getHeaders() {
+  static getHeaders() {
     let headers = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     return Object.assign({
@@ -64,11 +75,11 @@ module.exports = class {
       client: 'mxd_store',
       clienttype: 'Webportal',
       'content-type': 'application/json',
-      from: this.getFrom(),
+      from: Heimdall.getFrom(),
       language: 'de_DE',
       'maxdome-origin': 'maxdome.de',
       platform: 'web',
-      'user-agent': this.getUserAgent()
+      'user-agent': Heimdall.getUserAgent()
     }, headers);
   }
 
@@ -81,17 +92,18 @@ module.exports = class {
 
     let body = _ref2.body;
     let headers = _ref2.headers;
-    let method = _ref2.method;
+    var _ref2$method = _ref2.method;
+    let method = _ref2$method === undefined ? 'get' : _ref2$method;
     let transform = _ref2.transform;
     return _asyncToGenerator(function* () {
       try {
-        return yield rp({
+        return yield (0, _requestPromise2.default)({
           body: body,
-          method: method || 'get',
-          url: _this.getUrl(_this.getPath(path)),
-          headers: _this.getHeaders(headers),
+          headers: Heimdall.getHeaders(headers),
           json: true,
-          transform: transform
+          method: method,
+          transform: transform,
+          url: _this.getUrl(_this.getPath(path))
         });
       } catch (e) {
         throw new Error(e.error.message);
@@ -174,10 +186,20 @@ module.exports = class {
             if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
               title += ` (Season ${ asset.number })`;
             }
+            let image;
+            if (asset.coverList) {
+              const poster = asset.coverList.filter(function (cover) {
+                return cover.usageType === 'poster';
+              })[0];
+              if (poster) {
+                image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
+              }
+            }
             return {
               id: asset.id,
               title: title,
               description: asset.descriptionShort,
+              image: image,
               remembered: asset.remembered
             };
           });
@@ -185,4 +207,6 @@ module.exports = class {
       });
     })();
   }
-};
+}
+
+exports.default = Heimdall;

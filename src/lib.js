@@ -1,4 +1,12 @@
-module.exports = {
-  AssetsQuery: require('./AssetsQuery.js'),
-  Heimdall: require('./Heimdall.js')
+import AssetsQuery from './AssetsQuery';
+import Heimdall from './Heimdall';
+
+export {
+  AssetsQuery,
+  Heimdall,
+};
+
+export default {
+  AssetsQuery,
+  Heimdall,
 };

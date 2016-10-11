@@ -1,6 +1,9 @@
 'use strict';
 
-module.exports = class {
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+class AssetsQuery {
   constructor(ids) {
     this.queries = [];
     if (ids) {
@@ -16,23 +19,29 @@ module.exports = class {
   param(key, alias, values) {
     let value = alias;
     if (values) {
-      if (!Array.isArray(values)) {
-        values = [values];
+      if (Array.isArray(values)) {
+        value += `~${ values.join('|') }`;
+      } else {
+        value += `~${ values }`;
       }
-      value += `~${ values.join('|') }`;
     }
-    return this.query(key, value);
+    this.query(key, value);
+    return this;
   }
 
   filter(alias, restrictions) {
-    return this.param('filter[]', alias, restrictions);
+    this.param('filter[]', alias, restrictions);
+    return this;
   }
 
   sort(alias, order) {
-    return this.param('sort[]', alias, order);
+    this.param('sort[]', alias, order);
+    return this;
   }
 
   toString() {
     return this.queries.join('&');
   }
-};
+}
+
+exports.default = AssetsQuery;
