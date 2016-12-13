@@ -5,11 +5,10 @@ const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
 const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
 
 class Heimdall {
-  constructor({ apikey, appid, hostname: hostname = 'heimdall.maxdome.de', pageSize, version: version = 'v1' }) {
+  constructor({ apikey, appid, hostname: hostname = 'heimdall.maxdome.de', version: version = 'v1' }) {
     this.apikey = apikey;
     this.appid = appid;
     this.hostname = hostname;
-    this.pageSize = pageSize;
     this.version = version;
   }
 
@@ -24,8 +23,8 @@ class Heimdall {
     return path + add;
   }
 
-  getUrl(path = '') {
-    return `https://${this.hostname}/api/${this.version}/${path}`;
+  getUrl(path = '', version) {
+    return `https://${this.hostname}/api/${version || this.version}/${path}`;
   }
 
   static getFrom() {
