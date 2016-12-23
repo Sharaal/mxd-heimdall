@@ -4,6 +4,13 @@ import rp from 'request-promise';
 const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
 const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
 
+const types = {
+  AssetVideoFilm: 'movie',
+  AssetVideoFilmTvSeries: 'episode',
+  MultiAssetTvSeriesSeason: 'season',
+  MultiAssetBundleTvSeries: 'series',
+};
+
 class Heimdall {
   constructor({ apikey, appid, hostname: hostname = 'heimdall.maxdome.de', version: version = 'v1' }) {
     this.apikey = apikey;
@@ -91,8 +98,9 @@ class Heimdall {
     return this.get(`mxd/assets?${query}`, {
       headers,
       transform: data => data.assetList.map((asset) => {
+        const type = types[asset['@class']];
         let title = asset.title;
-        if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
+        if (type === 'season') {
           title += ` (Season ${asset.number})`;
         }
         let image;
@@ -103,11 +111,21 @@ class Heimdall {
           }
         }
         return {
+          type,
           id: asset.id,
           title,
           description: asset.descriptionShort,
           image,
+          searchTitle: asset.replace(' (Hot from the US)', ''),
+          hotFromUS: asset.includes(' (Hot from the US)'),
+          duration: asset.duration,
+          fskLevels: asset.fskLevelList,
+          genres: asset.genreList.map(genre => genre.value),
+          languages: asset.languageList,
+          productionYear: asset.productionYear,
+          rating: asset.userrating,
           remembered: asset.remembered,
+          seen: asset.seen,
         };
       }),
     });
