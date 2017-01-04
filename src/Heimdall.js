@@ -110,7 +110,15 @@ class Heimdall {
             image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
           }
         }
+        let areas = [];
+        if (asset.fullMarkingList.includes('inPremiumIncluded')) {
+          areas.push('package');
+        }
+        if (asset.mediaUsageList.includes('DTO') || asset.mediaUsageList.includes('TVOD')) {
+          areas.push('store');
+        }
         return {
+          areas,
           type,
           id: asset.id,
           title,

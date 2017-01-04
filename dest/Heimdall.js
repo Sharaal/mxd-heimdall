@@ -19,20 +19,25 @@ function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, a
 const appPkg = JSON.parse(_fs2.default.readFileSync(`${ process.cwd() }/package.json`));
 const libPkg = JSON.parse(_fs2.default.readFileSync(`${ __dirname }/../package.json`));
 
+const types = {
+  AssetVideoFilm: 'movie',
+  AssetVideoFilmTvSeries: 'episode',
+  MultiAssetTvSeriesSeason: 'season',
+  MultiAssetBundleTvSeries: 'series'
+};
+
 class Heimdall {
   constructor(_ref) {
     let apikey = _ref.apikey;
     let appid = _ref.appid;
     var _ref$hostname = _ref.hostname;
     let hostname = _ref$hostname === undefined ? 'heimdall.maxdome.de' : _ref$hostname;
-    let pageSize = _ref.pageSize;
     var _ref$version = _ref.version;
     let version = _ref$version === undefined ? 'v1' : _ref$version;
 
     this.apikey = apikey;
     this.appid = appid;
     this.hostname = hostname;
-    this.pageSize = pageSize;
     this.version = version;
   }
 
@@ -51,8 +56,9 @@ class Heimdall {
 
   getUrl() {
     let path = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+    let version = arguments[1];
 
-    return `https://${ this.hostname }/api/${ this.version }/${ path }`;
+    return `https://${ this.hostname }/api/${ version || this.version }/${ path }`;
   }
 
   static getFrom() {
@@ -182,8 +188,9 @@ class Heimdall {
         headers: headers,
         transform: function transform(data) {
           return data.assetList.map(function (asset) {
+            const type = types[asset['@class']];
             let title = asset.title;
-            if (asset['@class'] === 'MultiAssetTvSeriesSeason') {
+            if (type === 'season') {
               title += ` (Season ${ asset.number })`;
             }
             let image;
@@ -195,12 +202,38 @@ class Heimdall {
                 image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
               }
             }
+            let areas = [];
+            if (asset.fullMarkingList.includes('inPremiumIncluded')) {
+              areas.push('package');
+            }
+            if (asset.mediaUsageList.includes('DTO') || asset.mediaUsageList.includes('TVOD')) {
+              areas.push('store');
+            }
             return {
+              areas: areas,
+              type: type,
               id: asset.id,
               title: title,
               description: asset.descriptionShort,
               image: image,
-              remembered: asset.remembered
+              searchTitle: asset.title.replace(' (Hot from the US)', ''),
+              hotFromUS: asset.title.includes(' (Hot from the US)'),
+              episodeTitle: asset.episodeTitle,
+              episodeNumber: asset.episodeNumber,
+              seasonNumber: asset.seasonNumber || asset.number,
+              countries: asset.countryList,
+              duration: asset.duration,
+              fskLevels: asset.fskLevelList,
+              genres: asset.genreList.filter(function (genre) {
+                return genre.genreType === 'genre';
+              }).map(function (genre) {
+                return genre.value;
+              }),
+              languages: asset.languageList,
+              productionYear: asset.productionYear,
+              rating: asset.userrating,
+              remembered: asset.remembered,
+              seen: asset.seen
             };
           });
         }
