@@ -14,7 +14,7 @@ const { AssetsQuery, Heimdall } = require('mxd-heimdall');
 const heimdall = new Heimdall({ appid: '<appid>', apikey: '<apikey>' });
 ```
 
-*Attention*: `mxd-heimdall` will use several information from the `package.json` and add them to the headers. This makes it easier to identify the source of the request in the logs of heimdall if there are issues.
+**Attention**: `mxd-heimdall` will use several information from the `package.json` and add them to the headers. This makes it easier to identify the source of the request in the logs of heimdall if there are issues.
 The information which will be used:
 * from: `${author.name} <${author.email}> (${author.url})`
 * user-agent: `${appPkg.name} v${appPkg.version} via ${libPkg.name} v${libPkg.version}`
@@ -30,7 +30,7 @@ const assets = await heimdall.getAssets(query);
 ```
 
 
-## Get information for a specific asset by title
+## Search assets by title and get the first 3 results
 
 ```
 const title = '<title>';
@@ -42,7 +42,7 @@ const assets = await heimdall.getAssets(query);
 ```
 
 
-## Get all new store movies
+## Get the 50 newest store movies
 
 ```
 const query = (new AssetsQuery())
