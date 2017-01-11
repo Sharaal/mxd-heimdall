@@ -1,8 +1,13 @@
 {
   "plugins": [
     "transform-async-to-generator",
-    "transform-es2015-modules-commonjs",
     "transform-strict-mode"
   ],
-  "presets": ["es2015-node4"]
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": 4
+      }
+    }]
+  ]
 }

@@ -39,4 +39,4 @@ class AssetsQuery {
   }
 }
 
-export default AssetsQuery;
+module.exports = AssetsQuery;

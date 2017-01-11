@@ -1,5 +1,5 @@
-import fs from 'fs';
-import rp from 'request-promise';
+const fs = require('fs');
+const rp = require('request-promise');
 
 const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
 const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
@@ -146,4 +146,4 @@ class Heimdall {
   }
 }
 
-export default Heimdall;
+module.exports = Heimdall;
