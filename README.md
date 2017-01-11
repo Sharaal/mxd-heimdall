@@ -16,7 +16,9 @@ const heimdall = new Heimdall({ appid: '<appid>', apikey: '<apikey>' });
 
 **Attention**: `mxd-heimdall` will use several information from the `package.json` and add them to the headers. This makes it easier to identify the source of the request in the logs of heimdall if there are issues.
 The information which will be used:
-* from: `${author.name} <${author.email}> (${author.url})`
+* from: 
+  * If the author is an object: `${author.name} <${author.email}> (${author.url})`
+  * If not, the string will be used
 * user-agent: `${appPkg.name} v${appPkg.version} via ${libPkg.name} v${libPkg.version}`
 
 
