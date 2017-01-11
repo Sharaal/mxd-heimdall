@@ -27,7 +27,8 @@ The information which will be used:
 ## Get information for a specific asset by ID
 
 ```
-const query = new AssetsQuery(1);
+const assetId = <assetId>;
+const query = new AssetsQuery(assetId);
 const assets = await heimdall.getAssets(query);
 ```
 
