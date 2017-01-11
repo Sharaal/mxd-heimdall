@@ -59,7 +59,7 @@ class Heimdall {
         platform: 'web',
         'user-agent': Heimdall.getUserAgent(),
       },
-      headers
+      headers,
     );
   }
 
@@ -110,7 +110,7 @@ class Heimdall {
             image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
           }
         }
-        let areas = [];
+        const areas = [];
         if (asset.fullMarkingList.includes('inPremiumIncluded')) {
           areas.push('package');
         }
