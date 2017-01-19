@@ -12,10 +12,17 @@ const types = {
 };
 
 class Heimdall {
-  constructor({ apikey, appid, hostname: hostname = 'heimdall.maxdome.de', version: version = 'v1' }) {
+  constructor({
+    apikey,
+    appid,
+    apiHostname: apiHostname = 'heimdall.maxdome.de',
+    assetHostnames: assetHostnames = { package: 'maxdome.de', store: 'store.maxdome.de' },
+    version: version = 'v1',
+  }) {
     this.apikey = apikey;
     this.appid = appid;
-    this.hostname = hostname;
+    this.apiHostname = apiHostname;
+    this.assetHostnames = assetHostnames;
     this.version = version;
   }
 
@@ -31,7 +38,7 @@ class Heimdall {
   }
 
   getUrl(path = '', version) {
-    return `https://${this.hostname}/api/${version || this.version}/${path}`;
+    return `https://${this.apiHostname}/api/${version || this.version}/${path}`;
   }
 
   static getFrom() {
@@ -111,14 +118,19 @@ class Heimdall {
           }
         }
         const areas = [];
+        let linkArea;
         if (asset.fullMarkingList.includes('inPremiumIncluded')) {
           areas.push('package');
+          linkArea = 'package';
+        } else {
+          linkArea = 'store';
         }
         if (asset.mediaUsageList.includes('DTO') || asset.mediaUsageList.includes('TVOD')) {
           areas.push('store');
         }
         return {
           areas,
+          link: `http://${this.assetHostnames[linkArea]}/${asset.id}`,
           type,
           id: asset.id,
           title,
