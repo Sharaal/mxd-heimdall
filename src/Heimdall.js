@@ -5,10 +5,10 @@ const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
 const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
 
 const types = {
-  AssetVideoFilm: 'movie',
-  AssetVideoFilmTvSeries: 'episode',
-  MultiAssetTvSeriesSeason: 'season',
-  MultiAssetBundleTvSeries: 'series',
+  assetVideoFilm: 'movie',
+  assetVideoFilmTvSeries: 'episode',
+  multiAssetTvSeriesSeason: 'season',
+  multiAssetBundleTvSeries: 'series',
 };
 
 class Heimdall {
