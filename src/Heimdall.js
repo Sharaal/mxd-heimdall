@@ -13,14 +13,14 @@ const types = {
 
 class Heimdall {
   constructor({
-    apikey,
-    appid,
+    apikey: apikey = process.env.HEIMDALL_APIKEY,
+    appid: appid = process.env.HEIMDALL_APPID,
     apiHostname: apiHostname = 'heimdall.maxdome.de',
     assetHostnames: assetHostnames = { package: 'maxdome.de', store: 'store.maxdome.de' },
     version: version = 'v1',
-  }) {
-    this.apikey = apikey || process.env.HEIMDALL_APIKEY;
-    this.appid = appid || process.env.HEIMDALL_APPID;
+  } = {}) {
+    this.apikey = apikey;
+    this.appid = appid;
     this.apiHostname = apiHostname;
     this.assetHostnames = assetHostnames;
     this.version = version;
