@@ -2,12 +2,5 @@
   "plugins": [
     "transform-async-to-generator",
     "transform-strict-mode"
-  ],
-  "presets": [
-    ["env", {
-      "targets": {
-        "node": 4
-      }
-    }]
   ]
 }
