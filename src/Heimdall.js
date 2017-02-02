@@ -1,15 +1,12 @@
 const fs = require('fs');
 const rp = require('request-promise');
 
+const Asset = require('./Asset');
+const AssetsQuery = require('./AssetsQuery');
+const Maxpert = require('./Maxpert');
+
 const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
 const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
-
-const types = {
-  assetVideoFilm: 'movie',
-  assetVideoFilmTvSeries: 'episode',
-  multiAssetTvSeriesSeason: 'season',
-  multiAssetBundleTvSeries: 'series',
-};
 
 class Heimdall {
   constructor({
@@ -104,57 +101,36 @@ class Heimdall {
   async getAssets(query, { headers } = {}) {
     return this.get(`mxd/assets?${query}`, {
       headers,
-      transform: data => data.assetList.map((asset) => {
-        const type = types[asset['@class']];
-        let title = asset.title;
-        if (type === 'season') {
-          title += ` (Season ${asset.number})`;
-        }
-        let image;
-        if (asset.coverList) {
-          const poster = asset.coverList.filter(cover => cover.usageType === 'poster')[0];
-          if (poster) {
-            image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
-          }
-        }
-        const areas = [];
-        let linkArea;
-        if (asset.fullMarkingList.includes('inPremiumIncluded')) {
-          areas.push('package');
-          linkArea = 'package';
-        } else {
-          linkArea = 'store';
-        }
-        if (asset.mediaUsageList.includes('DTO') || asset.mediaUsageList.includes('TVOD')) {
-          areas.push('store');
-        }
-        return {
-          areas,
-          link: `http://${this.assetHostnames[linkArea]}/${asset.id}`,
-          type,
-          id: asset.id,
-          title,
-          description: asset.descriptionShort,
-          image,
-          searchTitle: asset.title.replace(' (Hot from the US)', ''),
-          hotFromUS: asset.title.includes(' (Hot from the US)'),
-          episodeTitle: asset.episodeTitle,
-          episodeNumber: asset.episodeNumber,
-          seasonNumber: asset.seasonNumber || asset.number,
-          countries: asset.countryList,
-          duration: asset.duration,
-          fskLevels: asset.fskLevelList,
-          genres: asset.genreList
-            .filter(genre => genre.genreType === 'genre')
-            .map(genre => genre.value),
-          languages: asset.languageList,
-          productionYear: asset.productionYear,
-          rating: asset.userrating,
-          remembered: asset.remembered,
-          seen: asset.seen,
-        };
-      }),
+      transform: data => data.assetList.map(
+        asset => new Asset(asset, { assetHostnames: this.assetHostnames })
+      ),
     });
+  }
+
+  async getTipOfTheDay({ headers } = {}) {
+    const page = await this.get('pages/%2F', {
+      headers: Object.assign(
+        {
+          client: 'mxd_package',
+          clienttype: 'samsung_tv',
+          platform: 'ott',
+        },
+        headers
+      )
+    });
+    const componentId = page.components.container.filter(
+      component => component.layout === 'tip-of-the-day'
+    )[0].container[0].meta_id;
+
+    const component = await this.get(`components/${componentId}`);
+    const tipOfTheDay = component.list[0];
+
+    const published = new Date(tipOfTheDay.published);
+    const assetId = tipOfTheDay.review[0].mam_asset_id[0].id;
+    const asset = (await this.getAssets(new AssetsQuery(assetId)))[0];
+    const maxpert = new Maxpert(tipOfTheDay.review[0].maxpert[0]);
+
+    return { published, asset, maxpert };
   }
 }
 
