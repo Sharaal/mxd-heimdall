@@ -101,9 +101,8 @@ class Heimdall {
   async getAssets(query, { headers } = {}) {
     return this.get(`mxd/assets?${query}`, {
       headers,
-      transform: data => data.assetList.map(
-        asset => new Asset(asset, { assetHostnames: this.assetHostnames })
-      ),
+      transform: data =>
+        data.assetList.map(asset => new Asset(asset, { assetHostnames: this.assetHostnames })),
     });
   }
 
@@ -115,12 +114,11 @@ class Heimdall {
           clienttype: 'samsung_tv',
           platform: 'ott',
         },
-        headers
-      )
+        headers,
+      ),
     });
-    const componentId = page.components.container.filter(
-      component => component.layout === 'tip-of-the-day'
-    )[0].container[0].meta_id;
+    const componentId = page.components.container
+      .filter(component => component.layout === 'tip-of-the-day')[0].container[0].meta_id;
 
     const component = await this.get(`components/${componentId}`);
     const tipOfTheDay = component.list[0];
