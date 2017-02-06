@@ -25,6 +25,10 @@ class AssetsQuery {
   }
 
   filter(alias, restrictions) {
+    const alternativeAliases = { package: 'hasPackageContent', store: 'availableWithoutPackage' };
+    if (alternativeAliases[alias]) {
+      alias = alternativeAliases[alias];
+    }
     this.param('filter[]', alias, restrictions);
     return this;
   }
