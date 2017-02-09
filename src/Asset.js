@@ -58,10 +58,10 @@ class Asset {
     this.seen = asset.seen;
   }
 
-  static async getAll(client, assetsQuery, { headers } = {}) {
+  static async getAll(client, assetsQuery, { headers, session } = {}) {
     return client.get(`mxd/assets?${assetsQuery}`, {
       headers,
-      keepAlive: true,
+      session,
       transform: data =>
         data.assetList.map(asset => new Asset(asset, { assetHosts: client.assetHosts })),
     });
