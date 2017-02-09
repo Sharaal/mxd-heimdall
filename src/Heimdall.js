@@ -1,10 +1,6 @@
 const fs = require('fs');
 const rp = require('request-promise');
 
-const Asset = require('./Asset');
-const AssetsQuery = require('./AssetsQuery');
-const Maxpert = require('./Maxpert');
-
 const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
 const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
 
@@ -12,14 +8,14 @@ class Heimdall {
   constructor({
     apikey: apikey = process.env.HEIMDALL_APIKEY,
     appid: appid = process.env.HEIMDALL_APPID,
-    apiHostname: apiHostname = 'heimdall.maxdome.de',
-    assetHostnames: assetHostnames = { package: 'maxdome.de', store: 'store.maxdome.de' },
+    apiHost: apiHost = 'https://heimdall.maxdome.de',
+    assetHosts: assetHosts = { package: 'http://maxdome.de', store: 'http://store.maxdome.de' },
     version: version = 'v1',
   } = {}) {
     this.apikey = apikey;
     this.appid = appid;
-    this.apiHostname = apiHostname;
-    this.assetHostnames = assetHostnames;
+    this.apiHost = apiHost;
+    this.assetHosts = assetHosts;
     this.version = version;
   }
 
@@ -35,7 +31,7 @@ class Heimdall {
   }
 
   getUrl(path = '', version) {
-    return `https://${this.apiHostname}/api/${version || this.version}/${path}`;
+    return `${this.apiHost}/api/${version || this.version}/${path}`;
   }
 
   static getFrom() {
@@ -96,39 +92,6 @@ class Heimdall {
 
   async delete(path = '', { body, headers, transform } = {}) {
     return this.request(path, { body, headers, method: 'delete', transform });
-  }
-
-  async getAssets(query, { headers } = {}) {
-    return this.get(`mxd/assets?${query}`, {
-      headers,
-      transform: data =>
-        data.assetList.map(asset => new Asset(asset, { assetHostnames: this.assetHostnames })),
-    });
-  }
-
-  async getTipOfTheDay({ headers } = {}) {
-    const page = await this.get('pages/%2F', {
-      headers: Object.assign(
-        {
-          client: 'mxd_package',
-          clienttype: 'samsung_tv',
-          platform: 'ott',
-        },
-        headers,
-      ),
-    });
-    const componentId = page.components.container
-      .filter(component => component.layout === 'tip-of-the-day')[0].container[0].meta_id;
-
-    const component = await this.get(`components/${componentId}`);
-    const tipOfTheDay = component.list[0];
-
-    const published = new Date(tipOfTheDay.published);
-    const assetId = tipOfTheDay.review[0].mam_asset_id[0].id;
-    const asset = (await this.getAssets(new AssetsQuery(assetId)))[0];
-    const maxpert = new Maxpert(tipOfTheDay.review[0].maxpert[0]);
-
-    return { published, asset, maxpert };
   }
 }
 

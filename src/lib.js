@@ -1,4 +1,7 @@
-const AssetsQuery = require('./AssetsQuery');
-const Heimdall = require('./Heimdall');
-
-module.exports = { AssetsQuery, Heimdall };
+module.exports = {
+  Asset: require('./Asset'),
+  AssetsQuery: require('./AssetsQuery'),
+  Heimdall: require('./Heimdall'),
+  Maxpert: require('./Maxpert'),
+  TipOfTheDay: require('./TipOfTheDay'),
+};

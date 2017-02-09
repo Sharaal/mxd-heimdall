@@ -6,19 +6,19 @@ const types = {
 };
 
 class Asset {
-  constructor(asset, { assetHostnames }) {
+  constructor(asset, { assetHosts }) {
     const type = types[asset['@class']];
 
     let title = asset.title;
     if (type === 'season') {
-      title += ` (Season ${asset.number})`;
+      title += ` (Staffel ${asset.number})`;
     }
 
     let image;
     if (asset.coverList) {
       const poster = asset.coverList.filter(cover => cover.usageType === 'poster')[0];
       if (poster) {
-        image = poster.url.replace('__WIDTH__', 138).replace('__HEIGHT__', 200);
+        image = poster.url;
       }
     }
 
@@ -35,7 +35,7 @@ class Asset {
     }
 
     this.areas = areas;
-    this.link = `http://${assetHostnames[linkArea]}/${asset.id}`;
+    this.link = `${assetHosts[linkArea]}/${asset.id}`;
     this.type = type;
     this.id = asset.id;
     this.title = title;
@@ -56,6 +56,14 @@ class Asset {
     this.rating = asset.userrating;
     this.remembered = asset.remembered;
     this.seen = asset.seen;
+  }
+
+  static async get(heimdall, query, { headers } = {}) {
+    return heimdall.get(`mxd/assets?${query}`, {
+      headers,
+      transform: data =>
+        data.assetList.map(asset => new Asset(asset, { assetHosts: heimdall.assetHosts })),
+    });
   }
 }
 
