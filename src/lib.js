@@ -1,7 +1,8 @@
 module.exports = {
   Asset: require('./Asset'),
   AssetsQuery: require('./AssetsQuery'),
-  Heimdall: require('./Heimdall'),
+  Client: require('./Client'),
   Maxpert: require('./Maxpert'),
+  Session: require('./Session'),
   TipOfTheDay: require('./TipOfTheDay'),
 };

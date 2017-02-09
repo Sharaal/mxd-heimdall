@@ -9,9 +9,9 @@
 # Initialisation
 
 ```
-const { Heimdall } = require('mxd-heimdall');
+const { Client } = require('mxd-heimdall');
 
-const heimdall = new Heimdall({ appid: '<appid>', apikey: '<apikey>' });
+const client = new Client({ appid: '<appid>', apikey: '<apikey>' });
 ```
 
 **Attention**: `mxd-heimdall` will use several information from the `package.json` and add them to the headers. This makes it easier to identify the source of the request in the logs of heimdall if there are issues.
@@ -30,8 +30,8 @@ The information which will be used:
 const { Asset, AssetsQuery } = require('mxd-heimdall');
 
 const assetId = <assetId>;
-const query = new AssetsQuery(assetId);
-const assets = await Asset.get(heimdall, query);
+const assetsQuery = new AssetsQuery(assetId);
+const assets = await Asset.getAll(client, assetsQuery);
 ```
 
 
@@ -41,11 +41,11 @@ const assets = await Asset.get(heimdall, query);
 const { Asset, AssetsQuery } = require('mxd-heimdall');
 
 const title = '<title>';
-const query = (new AssetsQuery())
+const assetsQuery = (new AssetsQuery())
   .filter('contentTypeSeriesOrMovies')
   .filter('search', title)
   .query('pageSize', 3);
-const assets = await Asset.get(heimdall, query);
+const assets = await Asset.getAll(client, assetsQuery);
 ```
 
 
@@ -54,12 +54,12 @@ const assets = await Asset.get(heimdall, query);
 ```
 const { Asset, AssetsQuery } = require('mxd-heimdall');
 
-const query = (new AssetsQuery())
+const assetsQuery = (new AssetsQuery())
   .filter('availableWithoutPackage')
   .filter('movies')
   .filter('new')
   .filter('notUnlisted')
   .query('pageSize', 50)
   .sort('activeLicenseStart', 'desc');
-const assets = await Asset.get(heimdall, query);
+const assets = await Asset.getAll(client, assetsQuery);
 ```

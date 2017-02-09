@@ -58,11 +58,12 @@ class Asset {
     this.seen = asset.seen;
   }
 
-  static async get(heimdall, query, { headers } = {}) {
-    return heimdall.get(`mxd/assets?${query}`, {
+  static async getAll(client, assetsQuery, { headers } = {}) {
+    return client.get(`mxd/assets?${assetsQuery}`, {
       headers,
+      keepAlive: true,
       transform: data =>
-        data.assetList.map(asset => new Asset(asset, { assetHosts: heimdall.assetHosts })),
+        data.assetList.map(asset => new Asset(asset, { assetHosts: client.assetHosts })),
     });
   }
 }

@@ -19,6 +19,7 @@ class TipOfTheDay {
         },
         headers,
       ),
+      keepAlive: true,
     });
     const componentId = page.components.container
       .filter(component => component.layout === 'tip-of-the-day')[0].container[0].meta_id;
@@ -28,7 +29,7 @@ class TipOfTheDay {
 
     const published = new Date(tipOfTheDay.published);
     const assetId = tipOfTheDay.review[0].mam_asset_id[0].id;
-    const asset = (await Asset.get(heimdall, new AssetsQuery(assetId)), { headers })[0];
+    const asset = (await Asset.getAll(heimdall, new AssetsQuery(assetId)), { headers })[0];
     const maxpert = new Maxpert(tipOfTheDay.review[0].maxpert[0]);
 
     return new TipOfTheDay({ published, asset, maxpert });
