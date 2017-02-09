@@ -24,7 +24,7 @@ class Session {
       body: {
         userId: email,
         phrase: password,
-        autoLogin: true
+        autoLogin: true,
       },
     });
     return new Session(client, session);

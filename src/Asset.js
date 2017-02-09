@@ -1,10 +1,3 @@
-const types = {
-  assetVideoFilm: 'movie',
-  assetVideoFilmTvSeries: 'episode',
-  multiAssetTvSeriesSeason: 'season',
-  multiAssetBundleTvSeries: 'series',
-};
-
 class Asset {
   constructor(asset, { assetHosts }) {
     this.id = asset.id;
