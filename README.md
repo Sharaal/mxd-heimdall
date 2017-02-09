@@ -9,7 +9,7 @@
 # Initialisation
 
 ```
-const { AssetsQuery, Heimdall } = require('mxd-heimdall');
+const { Heimdall } = require('mxd-heimdall');
 
 const heimdall = new Heimdall({ appid: '<appid>', apikey: '<apikey>' });
 ```
@@ -27,27 +27,33 @@ The information which will be used:
 ## Get information for a specific asset by ID
 
 ```
+const { Asset, AssetsQuery } = require('mxd-heimdall');
+
 const assetId = <assetId>;
 const query = new AssetsQuery(assetId);
-const assets = await heimdall.getAssets(query);
+const assets = await Asset.get(heimdall, query);
 ```
 
 
 ## Search assets by title and get the first 3 results
 
 ```
+const { Asset, AssetsQuery } = require('mxd-heimdall');
+
 const title = '<title>';
 const query = (new AssetsQuery())
   .filter('contentTypeSeriesOrMovies')
   .filter('search', title)
   .query('pageSize', 3);
-const assets = await heimdall.getAssets(query);
+const assets = await Asset.get(heimdall, query);
 ```
 
 
 ## Get the 50 newest store movies
 
 ```
+const { Asset, AssetsQuery } = require('mxd-heimdall');
+
 const query = (new AssetsQuery())
   .filter('availableWithoutPackage')
   .filter('movies')
@@ -55,6 +61,5 @@ const query = (new AssetsQuery())
   .filter('notUnlisted')
   .query('pageSize', 50)
   .sort('activeLicenseStart', 'desc');
-const assets = await heimdall.getAssets(query);
+const assets = await Asset.get(heimdall, query);
 ```
-
