@@ -6,17 +6,6 @@ class Session {
     this.customer = { customerId: session.customer.customerId };
   }
 
-  static async get(client, email, password) {
-    const session = await client.post('auth/login', {
-      body: {
-        userId: email,
-        phrase: password,
-        autoLogin: true
-      },
-    });
-    return new Session(client, session);
-  }
-
   async keepAlive() {
     try {
       await this.client.post('/auth/keepalive', {
@@ -28,6 +17,17 @@ class Session {
       });
       return new Session(this.client, session);
     }
+  }
+
+  static async get(client, email, password) {
+    const session = await client.post('auth/login', {
+      body: {
+        userId: email,
+        phrase: password,
+        autoLogin: true
+      },
+    });
+    return new Session(client, session);
   }
 }
 

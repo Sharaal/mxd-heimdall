@@ -7,45 +7,44 @@ const types = {
 
 class Asset {
   constructor(asset, { assetHosts }) {
-    const type = types[asset['@class']];
-
-    let title = asset.title;
-    if (type === 'season') {
-      title += ` (Staffel ${asset.number})`;
-    }
-
-    let image;
-    if (asset.coverList) {
-      const poster = asset.coverList.filter(cover => cover.usageType === 'poster')[0];
-      if (poster) {
-        image = poster.url;
-      }
-    }
-
-    const areas = [];
-    let linkArea;
-    if (asset.fullMarkingList.includes('inPremiumIncluded')) {
-      areas.push('package');
-      linkArea = 'package';
-    } else {
-      linkArea = 'store';
-    }
-    if (asset.mediaUsageList.includes('DTO') || asset.mediaUsageList.includes('TVOD')) {
-      areas.push('store');
-    }
-
-    this.areas = areas;
-    this.link = `${assetHosts[linkArea]}/${asset.id}`;
-    this.type = type;
     this.id = asset.id;
-    this.title = title;
-    this.description = asset.descriptionShort;
-    this.image = image;
+
+    this.type = {
+      assetVideoFilm: 'movie',
+      assetVideoFilmTvSeries: 'episode',
+      multiAssetTvSeriesSeason: 'season',
+      multiAssetBundleTvSeries: 'series',
+    }[asset['@class']];
+
+    this.title = asset.title;
+    if (this.type === 'season') {
+      this.title += ` (Staffel ${asset.number})`;
+    }
     this.searchTitle = asset.title.replace(' (Hot from the US)', '');
     this.hotFromUS = asset.title.includes(' (Hot from the US)');
     this.episodeTitle = asset.episodeTitle;
     this.episodeNumber = asset.episodeNumber;
     this.seasonNumber = asset.seasonNumber || asset.number;
+
+    this.description = asset.descriptionShort;
+
+    if (asset.coverList) {
+      const poster = asset.coverList.filter(cover => cover.usageType === 'poster')[0];
+      if (poster) {
+        this.image = poster.url;
+      }
+    }
+
+    this.areas = [];
+    if (asset.fullMarkingList.includes('inPremiumIncluded')) {
+      this.areas.push('package');
+    }
+    if (asset.mediaUsageList.includes('DTO') || asset.mediaUsageList.includes('TVOD')) {
+      this.areas.push('store');
+    }
+
+    this.link = `${assetHosts[this.areas.includes('package') ? 'package' : 'store']}/${asset.id}`;
+
     this.countries = asset.countryList;
     this.duration = asset.duration;
     this.fskLevels = asset.fskLevelList;

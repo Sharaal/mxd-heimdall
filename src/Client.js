@@ -1,6 +1,9 @@
 const fs = require('fs');
 const rp = require('request-promise');
 
+const appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
+const libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
+
 class Client {
   constructor({
     apiHost: apiHost = 'https://heimdall.maxdome.de',
@@ -11,9 +14,7 @@ class Client {
     this.apiHost = apiHost;
     this.apiKey = apiKey;
     this.appId = appId;
-    this.appPkg = JSON.parse(fs.readFileSync(`${process.cwd()}/package.json`));
     this.assetHosts = assetHosts;
-    this.libPkg = JSON.parse(fs.readFileSync(`${__dirname}/../package.json`));
   }
 
   getPath(path) {
@@ -35,7 +36,7 @@ class Client {
   }
 
   getFrom() {
-    const author = this.appPkg.author;
+    const author = appPkg.author;
     if (typeof author === 'object') {
       return `${author.name} <${author.email}> (${author.url})`;
     }
@@ -43,7 +44,7 @@ class Client {
   }
 
   getUserAgent() {
-    return `${this.appPkg.name} v${this.appPkg.version} via ${this.libPkg.name} v${this.libPkg.version}`;
+    return `${appPkg.name} v${appPkg.version} via ${libPkg.name} v${libPkg.version}`;
   }
 
   getHeaders({ headers: headers = {}, session } = {}) {
